@@ -10,7 +10,7 @@ The project combines financial time-series models with news-derived features and
 
 ## Overview
 
-Financial markets are influenced not only by historical price movements but also by new information arriving through financial news.
+Financial markets are influenced not only by historical price movements but also by new information that comes through financial news.
 
 This project investigates whether information extracted from news can provide additional predictive information for:
 
@@ -61,7 +61,7 @@ The project combines:
       Return Forecast   Volatility Forecast
 ```
 
-The project is now extended with a production-style daily pipeline:
+The project is extended with a production-style daily pipeline:
 
 ```text
        GDELT News          S&P 500 Data
@@ -101,7 +101,7 @@ GARCH and GARCH-X models are used to forecast market volatility.
 
 The GARCH-X model extends the traditional GARCH framework by incorporating the news-based risk signal into the volatility dynamics.
 
-The models were initially trained and evaluated using historical data before being integrated into the forecasting pipeline.
+The models were initially trained and evaluated using historical data from the year 2021 to 2026 before being integrated into the forecasting pipeline.
 
 ---
 
