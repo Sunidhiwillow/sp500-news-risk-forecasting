@@ -6,6 +6,8 @@ The project combines financial time-series models with news-derived features and
 
 ---
 
+**Live dashboard:** [https://sp500-news-risk-forecasting-realtime.streamlit.app/](https://sp500-news-risk-forecasting-realtime.streamlit.app/)
+
 ## Overview
 
 Financial markets are influenced not only by historical price movements but also by new information arriving through financial news.
