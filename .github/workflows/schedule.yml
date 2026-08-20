@@ -1,0 +1,55 @@
+name: sp500-forecast-pipeline
+
+on:
+  schedule:
+    # Poll GDELT every ~20 min during US market hours (13:30-21:00 UTC covers
+    # pre-market through close across EST/EDT; trim if you only want RTH).
+    - cron: "*/20 13-21 * * 1-5"
+    # Run the end-of-day job 30 min after the 21:00 UTC close, weekdays only.
+    - cron: "30 21 * * 1-5"
+  workflow_dispatch: {}   # allows manual "Run workflow" for testing
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit pipeline.db back to the repo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-pipeline.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-pipeline.txt
+
+      - name: Decide which job this run is
+        id: which
+        run: |
+          HOUR_UTC=$(date -u +%H)
+          MIN_UTC=$(date -u +%M)
+          # Treat the 21:xx UTC run as the daily close job, everything else as a poll.
+          if [ "$HOUR_UTC" = "21" ] && [ "$MIN_UTC" -ge "25" ]; then
+            echo "job=daily" >> "$GITHUB_OUTPUT"
+          else
+            echo "job=poll" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Poll GDELT news
+        if: steps.which.outputs.job == 'poll'
+        run: python poll_news.py
+
+      - name: Run end-of-day job (forecast + refit on Mondays)
+        if: steps.which.outputs.job == 'daily'
+        run: python daily_job.py
+
+      - name: Commit updated database
+        run: |
+          git config user.name "sp500-pipeline-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add pipeline.db
+          git diff --staged --quiet || git commit -m "Update pipeline.db [skip ci]"
+          git push
