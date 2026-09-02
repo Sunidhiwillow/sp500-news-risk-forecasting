@@ -28,7 +28,7 @@ def _fit_arimax(df):
     model = ARIMA(df["return_pct"], order=(1, 0, 0), exog=df[["risk_signal_lag1"]])
     fit = model.fit()
     return {
-        "intercept": float(fit.params["intercept"]),
+        "intercept": float(fit.params["const"]),
         "ar_l1": float(fit.params["ar.L1"]),
         "risk_signal_lag1": float(fit.params["risk_signal_lag1"]),
     }, fit.resid.values
